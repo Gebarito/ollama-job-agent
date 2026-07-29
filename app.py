@@ -1,4 +1,6 @@
+import pandas as pd
 import streamlit as st
+
 import jobsearch_agent as agent
 
 st.set_page_config(page_title='Ollama Job-FInder', page_icon='💼', layout='centered')
@@ -10,7 +12,7 @@ cv_file = st.file_uploader('Faça upload do seu currículo em PDF', type=['PDF']
 
 max_open_time = st.selectbox(
     'Tempo máximo da vaga aberta:',
-    ['1 dia', '3 dias', '1 semana', '1 mês', '3 meses', '6 meses']
+    ['1 dia', '1 semana', '1 mês', '1 ano']
 )
 
 modalities = st.multiselect(
@@ -28,9 +30,22 @@ if (req):
         options = {
             'modality': modalities,
             'time': max_open_time,
-            'max': max_results, 
+            'max': max_results,
         }
-        results = agent.submit_cv(cv_file, options)
-        st.table(results, border='horizontal')
+        with st.spinner('Buscando vagas e calculando compatibilidade ATS...'):
+            results = agent.submit_cv(cv_file, options)
+
+        if results:
+            df = pd.DataFrame(results)
+            st.dataframe(
+                df,
+                use_container_width=True,
+                hide_index=True,
+                column_config={
+                    'Link': st.column_config.LinkColumn('Link', display_text='Abrir vaga'),
+                },
+            )
+        else:
+            st.warning('Nenhuma vaga encontrada com os filtros selecionados.')
     else:
         st.error('Você precisa submeter um arquivo.')
