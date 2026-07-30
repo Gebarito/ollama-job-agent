@@ -178,7 +178,6 @@ def submit_cv(cv_file, options):
     cv_text = get_pdf_text(cv_file)
     search_position = get_compatible_position(cv_text)
     search_query = make_query(search_position, options)
-    print(search_query)
     timelimit = TIME_FILTER_MAP.get(options.get('time'))
     search_output = job_search(search_query, options['max'], timelimit)
     results = format_output(search_output, cv_text)
